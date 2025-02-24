@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app1:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      USERNAME_DATABASE: neondb_owner
+      PASSWORD_DATABASE: npg_Q8CPSgVZ4UJs
+      HOST_DATABASE: ep-billowing-king-a5ymmoyq-pooler.us-east-2.aws.neon.tech
+      DATABASE: neondb
+      PORT_DATABASE: 5432
+      JWT_SECRET: aG9sYSBjcmF5b2xh
+      JWT_EXPIRE_IN: 3h
+      SEND_EMAIL: true
+      MAILER_SERVICE: gmail
+      MAILER_EMAIL: alexvaldezmor@gmail.com
+      MAILER_SECRET_KEY: fsdktvrqexkhmfam
+      WEBSERVICE_URL: localhost:3000
+    command: npm run start

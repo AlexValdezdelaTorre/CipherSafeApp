@@ -1,7 +1,7 @@
-//import { protecAccountOwner } from "../../config/validate-owner";
-import { encriptAdapter, envs, protecAccountOwner } from "../../config";
+
+import { encriptAdapter, protecAccountOwner } from "../../config";
 import { JwtAdapter } from "../../config/jwt.adapter";
-import { SecurityBox, Users } from "../../data";
+import { Users } from "../../data";
 import { CreateUsersDTO, CustomError, LoginUserDTO, UpdateUsersDTO } from "../../domain";
 import { EmailService } from "./email.service";
 
@@ -33,7 +33,7 @@ export class UsersService {
       throw CustomError.notFound("User not found");
     }
   
-  return result;
+    return result;
             
   };
 
@@ -147,10 +147,10 @@ export class UsersService {
   async updateUser(id: string, usersData: UpdateUsersDTO, sessionUserId: string ){
    const user = await this.findIdUser(id);
    
-
     const isOwner = protecAccountOwner(user.id, sessionUserId);
     if(!isOwner) throw CustomError.unAuthorized("You are not the owner of this account");
 
+    
     user.name = usersData.name.trim()
     user.surname = usersData.surname.trim()
     user.email = usersData.email.toLowerCase().trim()

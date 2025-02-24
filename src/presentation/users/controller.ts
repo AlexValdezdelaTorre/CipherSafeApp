@@ -1,6 +1,6 @@
 
 
-import { Request, Response } from "express";
+import {  Request, Response } from "express";
 import { CreateUsersDTO, CustomError, LoginUserDTO, UpdateUsersDTO } from "../../domain";
 import { UsersService } from "../services/userService";
 
@@ -70,9 +70,10 @@ export class UsersController{
            .catch((error: any) => this.handleError(error, res))
     };*/
 
-    updateUser = async (req: Request, res: Response) => {
+    handleUpdateUser = (req: Request, res: Response) => {
         const { id } = req.params;
-        const sessionUserId = req.body.sessionUser.id;
+        //const sessionUserId = req.body.sessionUser.id;
+        const sessionUserId = (req as unknown as { user: { id: string } }).user.id;
 
         if (!id) {
             return res.status(400).json({ message: "ID del usuario es requerido" });
@@ -88,9 +89,12 @@ export class UsersController{
          .catch((error: unknown) => this.handleError(error,res))  
     };
 
+    
+
     deleteUser = (req: Request, res: Response) => {
         const { id } = req.params;
-        const sessionUserId = req.body.sessionUser.id
+        //const sessionUserId = req.body.sessionUser.id
+        const sessionUserId = (req as unknown as { user: { id: string } }).user.id;
     
             this.userService.deleteUser(id, sessionUserId)
             .then((data: any) => {

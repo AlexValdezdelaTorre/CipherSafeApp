@@ -39,9 +39,6 @@ export class SecurityBox extends BaseEntity {
     @CreateDateColumn({
     type: 'timestamp', default: () =>'CURRENT_TIMESTAMP'})
     createdAt: Date;
-    
-    @Column({ default: 0 })
-    credentialsCount: number;
 
     
     @OneToMany(() => Credentials, (credentials) => credentials.securityBox)

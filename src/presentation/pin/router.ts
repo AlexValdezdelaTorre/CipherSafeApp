@@ -4,6 +4,7 @@ import { UsersService } from "../services/userService";
 import { envs } from "../../config";
 import { PinController } from "./controller";
 import { EmailService } from "../services/email.service";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 
 export class PinRoutes {
@@ -22,9 +23,10 @@ export class PinRoutes {
         const pinController = new PinController(pinService);
 
         router.post('/', pinController.createPin); 
+
+        router.use(AuthMiddleware.protec);
         router.post('/validate', pinController.validatePinByCode); 
-        router.get('/:id', pinController.findIdPin); 
-         
+          
 
         return router;
     };

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CustomError, PinDTO } from "../../domain";
 import { PinService } from "../services/pinService";
+import { protecAccountOwner } from "../../config";
 
 
 export class PinController {
@@ -27,8 +28,40 @@ export class PinController {
     };
 
     validatePinByCode = async (req: Request, res: Response) => {
-        const { code } = req.body;
+        try {
+            const { code } = req.body;
+            const sessionUserId = (req as any).user?.id;
     
+            if (!code) return res.status(400).json({ error: "Code parameter is missing" });
+    
+            const pin = await this.pinService.validatePin(code);
+    
+            if (!pin) return res.status(404).json({ error: "Pin not found" });
+    
+            // 🔍 Verifica si el pin tiene un usuario asignado
+            if (!pin.users) {
+                return res.status(500).json({ error: "Pin is not associated with a user" });
+            }
+    
+            const isOwner = protecAccountOwner(pin.users.id, sessionUserId);
+            if (!isOwner) {
+                return res.status(403).json({ error: "Unauthorized access to this PIN" });
+            }
+    
+            return res.status(200).json(pin);
+        } catch (error) {
+            console.error("🔥 Error en validatePinByCode:", error);
+            return res.status(500).json({ message: "Internal server error 💩", error });
+        }
+    };
+   
+};
+
+
+
+    /*validatePinByCode = async (req: Request, res: Response) => {
+        const { code } = req.body;
+        
         if (!code) {
             return res.status(400).json({ error: "Code parameter is missing" });
         };
@@ -39,24 +72,7 @@ export class PinController {
         } catch (error) {
             this.handleError(error, res);
         };
-    }; 
-
-    findIdPin = async (req: Request, res: Response) => {
-        const { id } = req.params;
-        
-        this.pinService.findPinById(id)
-        .then((data: any) => {
-            return res.status(200).json(data)
-        })
-        .catch((error: any) => {
-            return res.status(500).json({
-            message: "Internal Server Error",
-            error,
-            });
-        }) ;  
-    };
-   
-};
+    };*/ 
 
     
      

@@ -3,7 +3,7 @@ import { SecurityBoxController } from "./controller";
 import { SecurityBoxService } from "../services/securityBoxService";
 import { UsersService } from "../services/userService";
 import { EmailService } from "../services/email.service";
-import { envs, protecAccountOwner } from "../../config";
+import { envs } from "../../config";
 import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 

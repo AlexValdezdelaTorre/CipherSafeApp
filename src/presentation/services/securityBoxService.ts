@@ -1,21 +1,20 @@
 
-
-import { Next, Req, Res } from "@nestjs/common";
-import { encriptAdapter, protecAccountOwner } from "../../config";
+//import { protecAccountOwner } from "../../config";
+import { protecAccountOwner } from "../../config";
 import { Credentials, Sec_status, SecurityBox } from "../../data";
 import { CreateSecurityBoxDTO, CustomError } from "../../domain";
 import { UsersService } from "../services/userService";
-import { CredentialService } from "./credentialStorageService";
-
-
 
 export class SecurityBoxService {
   constructor(public readonly usersService: UsersService) {}
 
-  async createSecurityBox(securityBoxData: CreateSecurityBoxDTO) {
+  async createSecurityBox(securityBoxData: CreateSecurityBoxDTO, sessionUserId: string) {
 
     const securityBox = new SecurityBox()
-    const user = await this.usersService.findIdUser(securityBoxData.user_id)
+    const user = await this.usersService.findIdUser(securityBoxData.user_id);
+
+    const isOwner = protecAccountOwner(user.id, sessionUserId);
+    if(!isOwner) throw CustomError.unAuthorized("You are not the owner of this account");
             
     securityBox.name = securityBoxData.name;
     securityBox.favorite = securityBoxData.favorite;
@@ -31,10 +30,12 @@ export class SecurityBoxService {
 
 
   async securityBoxList(
+    sessionUserId: string,
     orderBy: "name" | "createdAt" | "credentialsCount" = "name",
-    orderDirection: "ASC" | "DESC" = "ASC",
-    favorite?: boolean
+    orderDirection: "ASC" | "DESC" = "DESC",
+    favorite?: boolean,
   ) {
+    
   const queryBuilder = SecurityBox.createQueryBuilder("securityBox")
     .leftJoinAndSelect("securityBox.credentials", "credentials")
     .select([
@@ -46,10 +47,10 @@ export class SecurityBoxService {
       "securityBox.createdAt",
     ])
     .addSelect("COUNT(DISTINCT credentials.id)", "credentialsCount")
-    .where("securityBox.sec_status = :sec_status", {sec_status: Sec_status.ACTIVE,
-
-    })
+    .where("securityBox.sec_status = :sec_status", {sec_status: Sec_status.ACTIVE})
     .groupBy("securityBox.id");
+
+    queryBuilder.andWhere("securityBox.user_id = :user_id", { user_id: sessionUserId });
 
     if (favorite !== undefined) {
       queryBuilder.andWhere("securityBox.favorite = :favorite", { favorite });
@@ -63,36 +64,21 @@ export class SecurityBoxService {
       queryBuilder.orderBy("credentialsCount", orderDirection);
     }
     return await queryBuilder.getMany();
-  }
-
-
-  /*async getSecurityBoxes(orderBy: string): Promise<SecurityBox[]> {
-    let order = {};
-
-    switch (orderBy) {
-      case 'ALFABETICO':
-        order = { name: 'ASC' };
-        break;
-      case 'FECHA_CREACION':
-        order = { createdAt: 'ASC' };
-        break;
-      case 'CANTIDAD_REGISTROS':
-        order = { recordCount: 'DESC' };
-        break;
-      default:
-        order = { name: 'ASC' };
-    }
-
-    return SecurityBox.find({ order });
-  };*/
-
+  };
     
-  async addFavorite(securityBoxId: string, isFavorite: boolean): Promise<SecurityBox | null> {
+  async addFavorite(securityBoxId: string, isFavorite: boolean, sessionUserId: string): Promise<SecurityBox | null> {
     try {
-      const securityBox = await SecurityBox.findOne({ where: { id: securityBoxId } });
-    
+      const securityBox = await SecurityBox.findOne({ 
+        where: { id: securityBoxId },
+        relations: ["users"]  });
+     
       if (!securityBox) {
         throw new Error('SecurityBox not found');
+      }
+
+      const isOwner = protecAccountOwner(securityBox.users.id, sessionUserId);
+      if (!isOwner) {
+          throw new Error("You are not the owner of this SecurityBox");
       }
     
       securityBox.favorite = isFavorite;
@@ -104,38 +90,6 @@ export class SecurityBoxService {
       return null; // Devuelve null si hay un error
     }
   };
-
-  /*async findBoxById(id: string){
-    try {
-      return await SecurityBox.findOne({
-      where: {
-        id,
-        sec_status: Sec_status.ACTIVE
-      },
-      relations: ['users', 'credentials'],
-      select: {
-      users: {
-      id: true,
-      name: true,
-      surname: true,
-      email: true,
-      cellphone: true,
-      status: true,
-      securityBox: true,
-      pin: true
-      },
-      credentials: {
-        id: true,
-        account: true,
-        description: true,
-        code_1: true,
-        code_2: true,
-        }}
-    })
-    } catch (error) {
-      throw new Error("BoxId not found")
-    }
-  };*/
 
   async getSecurityBoxDetail(
     securityBoxId: string,
@@ -171,6 +125,27 @@ export class SecurityBoxService {
         data: credentials,
       },
     };
-  }
+  };
     
 }
+
+
+/*async getSecurityBoxes(orderBy: string): Promise<SecurityBox[]> {
+    let order = {};
+
+    switch (orderBy) {
+      case 'ALFABETICO':
+        order = { name: 'ASC' };
+        break;
+      case 'FECHA_CREACION':
+        order = { createdAt: 'ASC' };
+        break;
+      case 'CANTIDAD_REGISTROS':
+        order = { recordCount: 'DESC' };
+        break;
+      default:
+        order = { name: 'ASC' };
+    }
+
+    return SecurityBox.find({ order });
+  };*/

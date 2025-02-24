@@ -4,7 +4,7 @@ import { CredentialService } from "../services/credentialStorageService";
 import { SecurityBoxService } from "../services/securityBoxService";
 import { PinService } from "../services/pinService";
 import { UsersService } from "../services/userService";
-import { envs } from "../../config";
+import { envs, protecAccountOwnerMiddleware } from "../../config";
 import { EmailService } from "../services/email.service";
 import { AuthMiddleware } from "../middlewares/auth.middleware";
 
@@ -26,16 +26,8 @@ export class CredentialsRoutes {
         const credentialsController = new CredentialsController(crentialsService);
         
 
-        router.post('/', credentialsController.createCredentialController);
-        router.get("/generate-password", CredentialsController.generatePassword);
-       
-
-        //router.post("/vault-detail", credentialsController.getVaultDetail);
-
-
+        router.post('/', AuthMiddleware.protec, protecAccountOwnerMiddleware, credentialsController.createCredentialController);
         
-        
-        //router.get('/password', credentialsController.getPassword);
         
 
     
@@ -44,6 +36,4 @@ export class CredentialsRoutes {
     }
 }
 
-function generarContrasena(longitud: number) {
-    throw new Error("Function not implemented.");
-}
+

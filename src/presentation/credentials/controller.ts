@@ -2,8 +2,7 @@ import { Request, Response } from "express";
 import { CustomError } from "../../domain";
 import { CredentialService } from "../services/credentialStorageService";
 import { CreateCredentialsDTO } from "../../domain/dtos/credentialsStoreage/createCredentials.dto";
-import { SecurityBoxService } from "../services/securityBoxService";
-import { PinService } from "../services/pinService";
+
 
 
 export class CredentialsController {
@@ -33,17 +32,14 @@ export class CredentialsController {
         }); 
     };
 
-    static async generatePassword(req: Request, res: Response) {
+    /*static async generatePassword(req: Request, res: Response) {
         try {
           const password = await CredentialService.generateRandomPassword();
           res.json({ password });
         } catch (error: unknown) {
           res.status(500).json({ error });
         }
-    };
+    };*/
 
-     
-
-
-   
+    
 }

@@ -23,6 +23,9 @@ export class Pin extends BaseEntity {
     @JoinColumn({ name: "userId" })
     users: Users;
 
+    /*@Column('uuid') // Este es el campo de userId explícito
+    userId: string;*/
+
     @BeforeInsert()
         encryptedPassword(){
             this.code = encriptAdapter.hash(this.code)

@@ -28,7 +28,7 @@ export class UserRoutes {
         
         router.use(AuthMiddleware.protec);
 
-        router.patch('/:id', usersController.updateUser);
+        router.patch('/:id', usersController.handleUpdateUser);
         router.delete('/:id', usersController.deleteUser);
         //router.get('/validate-email/:token', usersController.validateAccount);
         
