@@ -1,7 +1,7 @@
 import express, { Router } from "express"
+import cors from "cors"
 //import helmet from "helmet";
 //import hpp from "hpp";
-//import cors from "cors";
 //import { rateLimit } from 'express-rate-limit'
 
 interface Options {
@@ -21,6 +21,12 @@ export class Server {
     }
 
     async start(){
+      this.app.use(cors({
+        origin: "http://localhost:5174", // Prueba con '*' temporalmente
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Agrega OPTIONS
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true // Permitir credenciales en las solicitudes CORS
+    }));
       this.app.use( express.json());
       this.app.use( express.urlencoded({ extended: true}));
 

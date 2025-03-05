@@ -15,12 +15,11 @@ export class LoginUserDTO {
         static create(object: { [key: string]: any }): [string?, LoginUserDTO?]{
         const { email, password, code } = object;
 
-        if(!email) return ['Missing name' /*undefined*/];
-        if(!regularExp.email.test(email)) return ['Invalid email'];
-        //if(!regularExp.code.test(code)) return ['Invalid email'];
+        if(!email) return ['Missing email'];
+        if(!regularExp.email.test(email)) return ["Invalid email"];
         if(!password) return ["Missing password"];
-        if(!regularExp.password.test(password)) return ['The password must be at least 10 characters, and contain at least one uppercase letter, one lowercase and one especial character']
+        if(!regularExp.password.test(password)) return ["Password must be at least 10 characters"]
         
         return [undefined, new LoginUserDTO(email, password, code)];
     }
-}
+} 

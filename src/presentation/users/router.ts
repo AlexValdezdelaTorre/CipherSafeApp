@@ -21,9 +21,8 @@ export class UserRoutes {
         const usersService = new UsersService(emailService)
         const usersController = new UsersController(usersService);
 
-        router.post('/', usersController.createUser);
+        router.post('/register', usersController.createUser);
         router.post('/login', usersController.loginUser);
-        //router.get('/', usersController.findAllUsers);
         router.get('/:id', usersController.findIdUser);
         
         router.use(AuthMiddleware.protec);
